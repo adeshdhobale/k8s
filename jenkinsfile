@@ -39,7 +39,7 @@ pipeline {
                 
                 
                 sh "docker run -d -p 9090:9090 --name myprojectContainer adeshdhobale/myproject:latest"
-                sh "your container is running you can access your application now"
+                sh "your container is running you can access your application now        "
              }            
         }
     }
