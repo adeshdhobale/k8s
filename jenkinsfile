@@ -1,7 +1,6 @@
 @Library("shared-libraries") _
 pipeline {
     agent {label "agent1"}
-
     stages {
         stage("shared-library-test-stage"){
             steps{
