@@ -1,0 +1,46 @@
+@Library("shared-libraries") _
+pipeline {
+    agent {label "agent1"}
+
+    stages {
+        stage("shared-library-test-stage"){
+            steps{
+                script{
+                hello()
+                }
+            }
+        }
+        stage("clone") {
+            steps {
+                echo "clonning code"
+                git url: "https://github.com/adeshdhobale/k8s.git", branch:"main"
+                echo "code clonned successfully"
+            }
+        }
+        stage("build"){
+            steps{
+                sh "pwd"
+                withCredentials([usernamePassword('credentialsId':"dockerhubcred" ,
+                passwordVariable:"dockerhubpassword" ,
+                usernameVariable:"dockerhubusername")]){
+                sh "docker login -u ${env.dockerhubusername} -p ${env.dockerhubpassword}"
+                echo"------------------------logged in into docker hub----------------"
+                sh "docker stop myprojectContainer && docker rm myprojectContainer"
+                sh "docker rmi ${env.dockerhubusername}/myproject:latest"
+                sh "docker build -t ${env.dockerhubusername}/myproject:latest ."
+                sh "docker push ${env.dockerhubusername}/myproject:latest"
+                echo "pushed image to docker hub"
+                }
+            }
+            
+        }
+        stage("runnning docker container"){
+            steps{
+                
+                
+                sh "docker run -d -p 9090:9090 --name myprojectContainer adeshdhobale/myproject:latest"
+                sh "your container is running you can access your application now"
+             }            
+        }
+    }
+}
